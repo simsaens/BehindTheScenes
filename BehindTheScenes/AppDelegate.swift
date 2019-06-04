@@ -11,7 +11,7 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
+    var sceneCount = 0
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
@@ -27,7 +27,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
-        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        sceneCount += 1
+        
+        connectingSceneSession.userInfo = ["SceneCount" : sceneCount ]
+        
+        var sceneDelegateClass: AnyClass = SceneDelegate.self
+        
+        if let activity = options.userActivities.first,
+            let sceneType = SceneType(rawValue: activity.activityType) {
+            
+            switch sceneType {
+            case .uikitScene:
+                sceneDelegateClass = SceneDelegate.self
+            case .swiftuiScene:
+                sceneDelegateClass = SwiftUISceneDelegate.self
+            }
+        }
+        
+        let config = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        config.sceneClass = UIWindowScene.self
+        config.delegateClass = sceneDelegateClass
+
+        return config
     }
 
     func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
